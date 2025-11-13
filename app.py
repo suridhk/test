@@ -72,3 +72,39 @@ def favorites():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+def delete_selected_languages(language_list, selected):
+    if not selected:
+        return "No languages selected for deletion."
+    count = 0
+    for lang in selected:
+        if lang in language_list:
+            language_list.remove(lang)
+            count += 1
+    if count == 0:
+        return "No matching languages found."
+    return f"Deleted {count} language(s) successfully!"
+
+
+
+@app.route('/favorites', methods=['GET', 'POST'])
+def favorites():
+    if 'languages' not in globals():
+        global languages
+        languages = ["Python", "C++", "JavaScript", "Go"]
+
+    message = None
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'add':
+            new_lang = request.form.get('language')
+            message = add_language(languages, new_lang)
+        elif action == 'delete_selected':
+            selected = request.form.getlist('selected_languages')
+            message = delete_selected_languages(languages, selected)
+        elif action == 'clear':
+            message = clear_languages(languages)
+        elif action == 'sort':
+            message = sort_languages(languages)
+
+    return render_template("favorites.html", title="Favorites", languages=languages, message=message)
