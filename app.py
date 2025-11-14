@@ -16,11 +16,18 @@ def add_language(language_list, new_lang):
         language_list.append(new_lang.capitalize())
         return f"{new_lang.capitalize()} added successfully!"
     return "Invalid or duplicate language."
-def delete_language(language_list, lang_to_delete):
-    if lang_to_delete in language_list:
-        language_list.remove(lang_to_delete)
-        return f"{lang_to_delete} removed successfully!"
-    return f"{lang_to_delete} not found."
+
+def delete_selected_languages(language_list, selected):
+    if not selected:
+        return "No languages selected for deletion."
+    count = 0
+    for lang in selected:
+        if lang in language_list:
+            language_list.remove(lang)
+            count += 1
+    if count == 0:
+        return "No matching languages found."
+    return f"Deleted {count} language(s) successfully!"
 
 def clear_languages(language_list):
     language_list.clear()
@@ -60,45 +67,6 @@ def favorites():
         if action == 'add':
             new_lang = request.form.get('language')
             message = add_language(languages, new_lang)
-        elif action == 'delete':
-            lang_to_delete = request.form.get('language')
-            message = delete_language(languages, lang_to_delete)
-        elif action == 'clear':
-            message = clear_languages(languages)
-        elif action == 'sort':
-            message = sort_languages(languages)
-
-    return render_template("favorites.html", title="Favorites", languages=languages, message=message)
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-def delete_selected_languages(language_list, selected):
-    if not selected:
-        return "No languages selected for deletion."
-    count = 0
-    for lang in selected:
-        if lang in language_list:
-            language_list.remove(lang)
-            count += 1
-    if count == 0:
-        return "No matching languages found."
-    return f"Deleted {count} language(s) successfully!"
-
-
-
-@app.route('/favorites', methods=['GET', 'POST'])
-def favorites():
-    if 'languages' not in globals():
-        global languages
-        languages = ["Python", "C++", "JavaScript", "Go"]
-
-    message = None
-    if request.method == 'POST':
-        action = request.form.get('action')
-        if action == 'add':
-            new_lang = request.form.get('language')
-            message = add_language(languages, new_lang)
         elif action == 'delete_selected':
             selected = request.form.getlist('selected_languages')
             message = delete_selected_languages(languages, selected)
@@ -108,3 +76,6 @@ def favorites():
             message = sort_languages(languages)
 
     return render_template("favorites.html", title="Favorites", languages=languages, message=message)
+if __name__ == '__main__':
+    app.run(debug=True)
+
